@@ -1,5 +1,55 @@
 # Changelog
 
+## 2.5
+
+Evolutions :
+* Ajout de la synchronisation du calendrier Prévarisc
+* Ajout du système d'alerte lors de la modification d'un établissement
+* Ajout de la prise en charge du cache filesystem
+* Ajout des champs de fusion du maire dans la génération de documents
+* Ajout de la périodicité calculée pour les sites
+* Ajout d'un filtre sur la liste des cellules
+* Ajout d'un indicateur sur les périodicités non standards
+* Ajout du support de l'authentification CAS
+* Ajout du support de l'authentification NTLM 
+* Le bloc des ets sans prochaine visite cette année remonte à présent les ets en retard de l'année N-1
+* Ajout de la balise de {heureDeb1erDossier} pour les convocations de maires
+* Ajout de la 3ème famille d'habitation
+* Ajout de la possibilité d'ajouter rapidement une couche WMS IGN
+* Standardisation du viewer cartographique cote backoffice
+* Ajout de la balise de {avisDossierCommission} pour les PV de maires
+* Ajout de la balise {familleEtab}
+
+Corrections :
+* Corrections sur l'enregistrement des prescriptions types : NUM_PRESCRIPTION_DOSSIER cannot be null
+* Correction sur l'initialisation des listes d'articles / textes dans l'admin à 0px
+* Correction des puces pouvant apparaître dans les documents générés s'il n'y a aucune prescription type
+* Correction du champ de fusion {dateDelaipresc} qui affait DELAIPRESC_DOSSIER lorsqu'il n'y avait pas de date
+* Correction d'un problème de droits sur l'action de validation des documents consultés lorsque l'utilisateur n'a accès qu'aux commissions
+* Correction du retrait d'une méthode dépréciée split
+* Correction d'un problème d'affichage de la carto IGN sur IE11
+* Correction du port ldap par défaut qui n'est plus inséré par zend sur les connexions LDAP
+* Correction du modèle de convocation des groupes de visites qui n'utilisaient pas le modèle de document de visite
+* Correction de l'affectation d'un dossier à une autre commission, les heures de début et de fin restaient en place ce qui pouvait causer des problèmes lorsque les horaires différaient
+* Correction de la {dateVisite} sur les ODJ qui était positionnée à la date du jour par défaut si vide
+* Correction de l'unité en mètres sur la mesure de distance cartographiques
+* Correction du non vidage de cache ets sur la partie contact (cf dus)
+* Correction de l'impossibilité de programmer un dossier de visite sur plusieurs journées
+* Correction de la balise {avisLastVP} qui disfonctionne ainsi que le calcul de la dernière VP
+* Correction de l'impossibilité de faire du drag and drop sur le calendrier pour les weekends
+* Correction de la suppression d'un lien établissement - dossier qui ne changeait pas l'avis de l'établissement
+* Correction d'un problème d'escapiing des quotes sur la recherche des ets
+* Correction d'un problème de géolocalisation si aucune couche WMS n'est paramétrée
+* Correction d'un problème de géolocalisation avec nominatim et du manque de couche WMS sur le viewer d'ajout d'un établissement
+* Correction de l'escaping des quotes sur les plans
+* Correction de l'escaping des noms de fichiers de la gestion des documents
+* Correction de la date du doc ajouté sur les levées d'avis défavorables
+* Correction du calcul de la périodicité des IGH et KO à l'insert de nouveaux IGH
+* Correction de la non-génération des documents consultés non manuels pour les dossiers de levées d'avis défavorables
+* Correction d'une fatal error sur la suppression d'un texte applicable non existant sur l'établissement
+* Correction de l'affichage des icônes des fichiers joints en cas d'extension en majuscule
+* Correction de l'image du préventionniste qui était trop grande dans le cas d'une carte IGN
+
 ## 2.4
 
 Evolutions :
@@ -38,8 +88,16 @@ Evolutions :
 * Ajout du grade dans la génération des PV et ODJ pour les préventionnistes attachés au dossier
 * Ajout d'un cache APC sur les métadonnées de l'ORM hors DEV
 * Auto-complétion des villes à partir de 2 caractères pour les communes à 2 caractères
+* Ajout de balises dans l'ODJ
+* Ajout du versionning des ressources statiques pour forcer le vidage de cache
+* Ajout du support du cache nosql mysql
 
 Corrections :
+* Correction des erreurs avec les dates de création/réception/réponse sur recherche de dossiers.
+* Affichage du numéro DocUrba pour les dossiers de nature "Déclaration préalable"
+* Ajout des dossiers de nature "Levée de prescriptions" dans les dossiers donnant avis en historique établissement.
+* Correction d'un problème sur les groupements ayant une quote dans leur libelle et/ou dans leur libelle de type de groupement
+* Correction d'un problème sur la remontée d'établissements sans VP dans l'année du à une liste de nature de dossier concerné différente de la fiche info d'un établissement
 * Impossibilité de créer des dossiers en décembre : mauvais validateur de date
 * Sur firefox, sur le tableau de bord, impossible de scroller sur les blocs sans déplacer le bloc avec
 * Ajout d'une image manquante sur tipsy
@@ -78,10 +136,26 @@ Corrections :
 * Correction de la disparition du groupement de commune de la liste après enregistrement
 * Correction de l'objet du dossier qui restait même après avoir changé de nature
 * Correction de la liaison d'un dossier à un établissement qui ne répercutait pas son avis
-* Correction des dates pickers à passer en français
 * Correction de la réutilisation d'une étude ou visite programmé à un ODJ, reste programmé à l'ODJ
 * Correction du non rechargement des pages de gestion des commission à l'ajout ou suppression
 * Correction du descriptif établissment avec les valeurs maximums
+* Correction de la fonction proprietaire manquante
+* Correction de la creation d'un ODJ la 1ère fois avec deplacement du dossier mal positionne
+* Correction des dates pickers à passer en français
+* Correction de la catégorie qui doit prendre celle du père pour les cellules au niveau de la popup et des docs générés
+* Correction des dates pickers à passer en français
+* Correction de la catégorie qui doit prendre celle du père pour les cellules au niveau de la popup et des docs générés
+* Correction du cache non vidé pour les parents des établissements lorsqu'un dossier donnant avis est modifié
+* Correction de la creation d'un ODJ la 1ère fois avec deplacement du dossier mal positionne
+* Correction de l'enregistrement d'une prescription type sans choisir de texte et d'article
+* Correction de l'espacement interbloc sur la HP qui décale tout sur 1 colonne sur certains types de petits écrans
+* Correction du cache non vidé pour les parents des établissements lorsqu'un dossier donnant avis est modifié
+* Correction de la génération des convocations qui ne faisait apparaitre que le dernier dossier pour les membres de types commune
+* Correction de la visibilité des dossiers sur les odj des membres communes
+* Correction des communes à 2 caractères, on remonte en 1er celles dont la longueure est minimale
+* Correction du dossier, ajout de deux années pour l'affichage des calendriers
+* Correction des calendriers dans la fiche dossier : ajout de deux annees dans la liste deroulante
+* Correction de l'historique d'avis d'exploitation, qui triait mal les lignes d'historique
 
 ## 2.3
 

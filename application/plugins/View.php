@@ -23,13 +23,15 @@ class Plugin_View extends Zend_Controller_Plugin_Abstract
             } else {
                 $git = new SebastianBergmann\Git\Git(APPLICATION_PATH . DS . '..');
                 $view->branch_prevarisc = $git->getCurrentBranch();
-                $view->revision_prevarisc = end($git->getRevisions())['sha1'];
+                $revisions = $git->getRevisions();
+                $last_revision = end($revisions);
+                $view->revision_prevarisc = $last_revision['sha1'];
                 $view->version_prevarisc = $view->branch_prevarisc . '@' . substr((string) $view->revision_prevarisc, 0, 7);
             }
 
             // Chargement des aides de vue
-            $view->registerHelper(new View_Helper_MinifyHeadLink, 'headLink');
-            $view->registerHelper(new View_Helper_MinifyInlineScript, 'inlineScript');
+            $view->registerHelper(new View_Helper_MinifyHeadLink($view->version_prevarisc), 'headLink');
+            $view->registerHelper(new View_Helper_MinifyInlineScript($view->version_prevarisc), 'inlineScript');
             $view->registerHelper(new SDIS62_View_Helper_FlashMessenger, 'flashMessenger');
             $view->registerHelper(new View_Helper_AfficheDoc, 'afficheDoc');
             $view->registerHelper(new View_Helper_AgendaMois, 'agendaMois');
@@ -57,6 +59,7 @@ class Plugin_View extends Zend_Controller_Plugin_Abstract
             $view->inlineScript()->appendFile("/js/dropzone.min.js");
             $view->inlineScript()->appendFile("/js/chosen.jquery.min.js");
             $view->inlineScript()->appendFile("/js/jquery.dateentry.js");
+            $view->inlineScript()->appendFile("/js/jquery-ui.datepicker.fr.js");
             $view->inlineScript()->appendFile("/js/jquery.marquee.min.js");
             $view->inlineScript()->appendFile("/js/jquery.hoverintent.js");
             $view->inlineScript()->appendFile("/js/main.js");

@@ -49,6 +49,12 @@ body.login input[type='submit'] {
     margin: 0 auto;
 }
 
+.login .errors {
+    list-style: none;
+    margin-left: 0;
+    font-style: italic;
+}
+
 h2{
     font-size: 20px;
 }
@@ -412,6 +418,10 @@ a.thumbnail + a.thumbnail {
     margin-left: 5px;
 }
 
+.thumbnail img {
+    width: 100%;
+}
+
 /* 8.Etablissements */
 #ligne_informations {
 
@@ -441,6 +451,11 @@ h4.h4_subtitle {
 	text-shadow: 1px 1px 0 white;
 	padding: .3em;
 	margin: 1em 0 1em 0;
+}
+
+h4.h4_subtitle input {
+    margin-bottom: 0;
+    font-size: 0.7em;
 }
 
 .nav-tabs > li.tabs-right {
@@ -636,6 +651,10 @@ ul#gestionCommissionMenu li.active {
 
 .listePrescriptions li:hover {
 	cursor: row-resize;
+}
+
+.classement li:hover {
+    cursor: row-resize;
 }
 
 .dossierODJ:hover{
@@ -858,7 +877,7 @@ text-decoration: none;
 }
 
 .dashboard .grid-gutter {
-  width:  2%;
+  width: 1%;
 }
 
 
@@ -1107,7 +1126,7 @@ a.list-group-item-danger.active:focus {
     background: url('../images/pdf.png') no-repeat;  
 }  
 
-#tabPieceJointe .doc{  
+#tabPieceJointe .doc, #tabPieceJointe .docx{  
     background: url('../images/word.png') no-repeat;  
 }  
 
@@ -1136,4 +1155,79 @@ a.list-group-item-danger.active:focus {
 
 #tabPieceJointe .msg{  
     background: url('../images/msg.png') no-repeat;  
+}
+
+/* Fix provenant d'un problème IE11 / bootstrap*/
+#geoportail-container img, #geoconcept-container img {
+    max-width: none;
+}
+#geoconcept-container label {
+    display: inline;
+}
+
+#geoconcept-container .mapLayerControl {
+    right: 0;
+    background-color: #ccc;
+    border: 1px solid #ccc;
+}
+
+a.alerte-link:hover {
+    cursor: pointer;
+}
+
+.alerte-link i {
+    margin-right: 5px;
+}
+
+.table-balises {
+    width: 100%;
+}
+
+.table-balises, .table-balises th, .table-balises td {
+    border: 1px solid #ccc;
+}
+
+.table-balises th, .table-balises td {
+    padding: 5px 10px;
+}
+
+.td-balise {
+    color: #666;
+    font-style: italic;
+    width: 40%;
+}
+
+.mail-objet-input {
+    width: 85%;  
+}
+
+#formAlerte hr {
+    margin: 10px 0;
+}
+
+.remove-dst {
+    font-size: 10px;
+}
+
+#mail-no-bcc {
+    display: none;
+}
+
+#mail-no-bcc p {
+    font-style: italic;
+}
+.highlight{
+    background-color: yellow;
+}
+
+#listePrescriptionTypeSearch > li, 
+#listePrescriptionType > li {
+    border: 1px solid #ddd;
+    border-left: 0 none;
+    border-right: 0 none;
+    list-style-type:none;
+}
+
+#listePrescriptionTypeSearch .noresult {
+    border: 0 none;
 }

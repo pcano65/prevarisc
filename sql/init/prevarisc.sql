@@ -1083,6 +1083,9 @@ INSERT INTO `dossiernatureliste` (`ID_DOSSIERNATURE`, `LIBELLE_DOSSIERNATURE`, `
 INSERT INTO `dossiernatureliste` (`ID_DOSSIERNATURE`, `LIBELLE_DOSSIERNATURE`, `ID_DOSSIERTYPE`, `ORDRE`) VALUES (61,"Autorisation d'une ICPE",1,23);
 INSERT INTO `dossiernatureliste` (`ID_DOSSIERNATURE`, `LIBELLE_DOSSIERNATURE`, `ID_DOSSIERTYPE`, `ORDRE`) VALUES (62,"Certificats d'urbanisme (CU)",1,24);
 INSERT INTO `dossiernatureliste` (`ID_DOSSIERNATURE`, `LIBELLE_DOSSIERNATURE`, `ID_DOSSIERTYPE`, `ORDRE`) VALUES (63,"Demande d'organisation de manifestation temporaire",1,25);
+INSERT INTO `dossiernatureliste` (`ID_DOSSIERNATURE`, `LIBELLE_DOSSIERNATURE`, `ID_DOSSIERTYPE`, `ORDRE`) VALUES (64,"Visite conseil",2,7);
+INSERT INTO `dossiernatureliste` (`ID_DOSSIERNATURE`, `LIBELLE_DOSSIERNATURE`, `ID_DOSSIERTYPE`, `ORDRE`) VALUES (65,"Autorisation de travaux",5,12);
+INSERT INTO `dossiernatureliste` (`ID_DOSSIERNATURE`, `LIBELLE_DOSSIERNATURE`, `ID_DOSSIERTYPE`, `ORDRE`) VALUES (66,"Déclassement / Reclassement",1,26);
 /*!40000 ALTER TABLE `dossiernatureliste` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1664,7 +1667,7 @@ CREATE TABLE `famille` (
 
 LOCK TABLES `famille` WRITE;
 /*!40000 ALTER TABLE `famille` DISABLE KEYS */;
-INSERT INTO `famille` VALUES (1,'Aucune'),(2,'1ère famille'),(3,'2ème famille'),(4,'2ème famille collective'),(5,'3ème famille A'),(6,'3ème famille B'),(7,'4ème famille'),(8,'Logements-foyers pour personne autres que personnes âgées et handicapés physique'),(9,'Logements-foyers pour personnes âgées'),(10,'Logements –foyers pour handicapés physiques ayant leur autonomie');
+INSERT INTO `famille` VALUES (1,'Aucune'),(2,'1ère famille'),(3,'2ème famille'),(4,'2ème famille collective'),(5,'3ème famille A'),(6,'3ème famille B'),(7,'4ème famille'),(8,'Logements-foyers pour personne autres que personnes âgées et handicapés physique'),(9,'Logements-foyers pour personnes âgées'),(10,'Logements-foyers pour handicapés physiques ayant leur autonomie'),(11,"3ème famille (classement antérieur à l'A. du 31/01/1986 modifié)");
 /*!40000 ALTER TABLE `famille` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1688,7 +1691,7 @@ CREATE TABLE `fonction` (
 
 LOCK TABLES `fonction` WRITE;
 /*!40000 ALTER TABLE `fonction` DISABLE KEYS */;
-INSERT INTO `fonction` VALUES (1,'Préfet'),(2,'Maire'),(3,'Maitre d\'ouvrage'),(4,'Maitre d\'oeuvre'),(5,'Pétitionnaire demandeur'),(6,'Controller technique (organisme agréé)'),(7,'Exploitant'),(8,'Directeur unique de sécurité'),(9,'Responsable de sécurité'),(10,'Participant'),(11,'Demandeur'),(12,'Simple utilisateur'),(13,'Préventionniste'),(15,'Secrétariat'),(16,'Service informatique'),(99,'Utilisateur spécial');
+INSERT INTO `fonction` VALUES (1,'Préfet'),(2,'Maire'),(3,'Maitre d\'ouvrage'),(4,'Maitre d\'oeuvre'),(5,'Pétitionnaire demandeur'),(6,'Controller technique (organisme agréé)'),(7,'Exploitant'),(8,'Directeur unique de sécurité'),(9,'Responsable de sécurité'),(10,'Participant'),(11,'Demandeur'),(12,'Simple utilisateur'),(13,'Préventionniste'),(15,'Secrétariat'),(16,'Service informatique'),(17,'Propriétaire'),(99,'Utilisateur spécial');
 /*!40000 ALTER TABLE `fonction` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1769,6 +1772,7 @@ CREATE TABLE `groupe-privileges` (
 
 LOCK TABLES `groupe-privileges` WRITE;
 /*!40000 ALTER TABLE `groupe-privileges` DISABLE KEYS */;
+INSERT INTO `groupe-privileges` (`ID_GROUPE`, `id_privilege`) VALUES ('1', '11');
 /*!40000 ALTER TABLE `groupe-privileges` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2171,6 +2175,9 @@ CREATE TABLE `prescriptionarticleliste` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+
+INSERT INTO `prescriptionarticleliste` (`ID_ARTICLE`,`LIBELLE_ARTICLE`) VALUES (1,"");
+
 --
 -- Dumping data for table `prescriptionarticleliste`
 --
@@ -2303,6 +2310,8 @@ CREATE TABLE `prescriptiontexteliste` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+INSERT INTO `prescriptiontexteliste` (`ID_TEXTE`,`LIBELLE_TEXTE`) VALUES (1,"");
+
 --
 -- Dumping data for table `prescriptiontexteliste`
 --
@@ -2325,6 +2334,7 @@ CREATE TABLE `prescriptiontype` (
   `PRESCRIPTIONTYPE_TEXTE` bigint(20) DEFAULT NULL,
   `PRESCRIPTIONTYPE_ARTICLE` bigint(20) DEFAULT NULL,
   `PRESCRIPTIONTYPE_LIBELLE` text,
+  `PRESCRIPTIONTYPE_NUM` int(3) DEFAULT 999,
   PRIMARY KEY (`ID_PRESCRIPTIONTYPE`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2400,7 +2410,13 @@ INSERT INTO `privileges` VALUES
 (56,'view_ets','Lecture',54),
 (57,'edit_ets','Modifier',54),
 (58,'view_ets','Lecture',55),
-(59,'edit_ets','Modifier',55);
+(59,'edit_ets','Modifier',55),
+(60,'alerte_statut','Changement de statut',56),
+(61,'alerte_avis','Changement d''avis',56),
+(62,'alerte_classement','Changement de classement',56),
+(63,'search_ets','Etablissements',57),
+(64,'search_dossiers','Dossiers',57);
+
 INSERT INTO `privileges`(`id_privilege`,`name`, `text`,`id_resource`) VALUES(100,"view_ets_avis_defavorable", "Voir les établissements sous avis défavorable",100);
 INSERT INTO `privileges`(`id_privilege`,`name`, `text`,`id_resource`) VALUES(101,"view_doss_sans_avis", "Voir dossiers de commissions échus sans avis",100);
 INSERT INTO `privileges`(`id_privilege`,`name`, `text`,`id_resource`) VALUES(102,"view_ets_ouverts_sans_prochaine_vp", "Voir ets sans prochaine visite périodique",100);
@@ -2447,7 +2463,9 @@ INSERT INTO `resources`(`id_resource`,`name`, `text`) VALUES(51,"statut_etabliss
 INSERT INTO `resources`(`id_resource`,`name`, `text`) VALUES(52,'etablissement_camp_0_0','Camping (Ignorer les groupements - Ignorer la commune)'),
 (53,'etablissement_temp_0_0','Manifestation temporaire (Ignorer les groupements - Ignorer la commune)'),
 (54,'etablissement_iop_0_0','IOP (Ignorer les groupements - Ignorer la commune)'),
-(55,'etablissement_zone_0_0_0','Zone (Toutes les classes - Ignorer les groupements - Ignorer la commune)');
+(55,'etablissement_zone_0_0_0','Zone (Toutes les classes - Ignorer les groupements - Ignorer la commune)'),
+(56,'alerte_email','Alertes'),
+(57,'search','Recherche');
 INSERT INTO `resources`(`id_resource`,`name`, `text`) VALUES(100,"dashboard", "Tableau de bord");
 /*!40000 ALTER TABLE `resources` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -2551,7 +2569,7 @@ CREATE TABLE `typeactivite` (
 
 LOCK TABLES `typeactivite` WRITE;
 /*!40000 ALTER TABLE `typeactivite` DISABLE KEYS */;
-INSERT INTO `typeactivite` VALUES (1,'Châpiteau',1),(2,'Structures',1),(3,'Tentes',1),(4,'Bateaux en stationnement sur les eaux intérieures',2),(5,'Bateaux stationnaires',2),(6,'Etablissements flottants',2),(7,'Gares',5),(8,'Etablissements d’enseignement avec internat pour jeunes handicapés ou inadaptés',7),(9,'Etablissements d’hébergement pour adultes handicapés',7),(10,'Etablissements médico-éducatifs avec internat pour jeunes handicapés ou inadaptés',7),(11,'Structures d’accueil pour personnes âgées',7),(12,'Structures d’accueil pour personnes handicapées',7),(13,'Cabarets',8),(14,'Cinéma',8),(15,'Cirques non forains',8),(16,'Salles d\'audition',8),(17,'Salle de conférences',8),(18,'Salles de pari',8),(19,'Salles de projection',8),(20,'Salles de quartier (ou assimilée)',8),(21,'Salles de réunions',8),(22,'Salles de spectacles',8),(23,'Salles multimédia',8),(24,'Salles polyvalentes à dominante sportive, dont la superficie unitaire est supérieure ou égale à 1 200 m2',8),(25,'Salles polyvalentes non visée par le Type X (salle polyvalente qui n’a pas une destination unique)',8),(26,'Salles réservées aux associations',8),(27,'Aires de vente',9),(28,'Boutiques',9),(29,'Centres commerciaux',9),(30,'Locaux de vente',9),(31,'Magasin de vente',9),(32,'Bars',10),(33,'Brasseries',10),(34,'Cafétaria',10),(35,'Cafés',10),(36,'Cantines',10),(37,'Débits de boissons',10),(38,'Restaurants',10),(39,'Hôtels',11),(40,'Motels',11),(41,'Pensions de famille',11),(42,'Hôtels-restaurants d’altitude',12),(43,'Bals',13),(46,'Salles de danse',13),(47,'Salles de jeux',13),(48,'Arènes',14),(49,'Hippodromes',14),(50,'Piscines',14),(51,'Pistes de patinage',14),(52,'Stades',14),(53,'Terrains de sport',14),(54,'Parcs de stationnement couverts',16),(55,'Auberges de jeunesse (comprenant au moins un local collectif à sommeil)',17),(56,'Auto-écoles',17),(57,'Centres aérés',17),(58,'Centres de loisirs (sans hébergement)',17),(59,'Centres de vacances',17),(60,'Colonies de vacances',17),(61,'Crèches',17),(62,'Ecoles maternelles',17),(63,'Etablissements d’enseignement',17),(64,'Etablissements de formation',17),(65,'Haltes-garderies',17),(66,'Internats des établissements de l\'enseignement primaire et secondaire',17),(67,'Jardins d\'enfant',17),(68,'Lycee public',17),(69,'Refuges de montagne',18),(70,'Bibliothèques',19),(71,'Centres de documentation et de consultation d’archives',19),(72,'Structures gonflables',20),(73,'Etablissements à vocation commerciale destinés à des expositions',21),(74,'Foires-expositions',21),(75,'Salles d’exposition à caractère permanent n’ayant pas une vocation de foire ou de salons ',21),(76,'Salles d’expositions de véhicules automobiles, bateaux, machines et autres volumineux biens d’équipements assimilables',21),(77,'Salons à caractère temporaire',21),(78,'Etablissements de cure thermale ou de thalassothérapie',22),(79,'Etablissements de santé publics ou privés dispensant des soins de courte durée en médecine, chirurgie, obstétrique',22),(80,'Etablissements de santé publics ou privés dispensant des soins de psychiatrie, de suite ou de réadaptation, des soins de longue durée, à des personnes n\'ayant pas leur autonomie de vie dont l\'état nécessite une surveillance médicale constante',22),(81,'Etablissements de thalassothérapie',22),(82,'Pouponnières',22),(83,'Eglises',23),(84,'Mosquées',23),(85,'Synagogues',23),(86,'Temples',23),(87,'Administrations',24),(88,'Banques',24),(89,'Bureaux',24),(90,'Hôtels de ville',24),(91,'Manèges',25),(92,'Patinoires',25),(93,'Piscines couvertes, transformables et mixtes',25),(94,'Salles d\'éducation physique et sportive',25),(95,'Salles omnisports',25),(96,'Salles polyvalentes à dominante sportive, dont l\'aire d\'activité est inférieure à 1200 2 et la hauteur sous plafond supérieure ou égale à 6,50 mètres, etc',25),(97,'Salles sportives spécialisées',25),(98,'Musées',26),(99,'Salles destinées à recevoir des expositions à vocation culturelle, scientifique, technique, artistique, etc. ayant un caractère temporaire',26),(101,'Collège public',17),(103,'En attente de classement',27),(104,'Parc d\'attraction',14),(105,'Locaux à usage collectif d\'une surface unitaire supérieure à 50 mètres carrés des logements-foyers et de l\'habitat de loisirs à gestion collective',15),(106,'Bâtiments ou locaux à usage d\'hébergement qui ne relèvent d\'aucun type défini à l\'article GN 1 et qui permettent d\'accueillir plus de 15 et moins de 100 personnes n\'y élisant pas domicile',15),(107,'Hébergement de mineurs en dehors de leurs familles, le seuil de l\'effectif est fixé à 7 mineurs',15),(108,'Maisons d\'assistants maternels (MAM) dont les locaux accessibles au public sont strictement limités à un seul étage sur rez-de-chaussée et dont l\'effectif ne dépasse pas 16 enfants',15),(109,'Ecoles primaires',17),(110,'Lycee privé',17),(111,'Collège privé',17),(112,'Lycée agricole',17),(113,'Lycée maritime',17),(115, 'Parc de stationnement mixte', 16),(116, 'Parc de stationnement largement ventilé', 16),(117, 'Parc de stationnement à rangement automatisé', 16);
+INSERT INTO `typeactivite` VALUES (1,'Châpiteau',1),(2,'Structures',1),(3,'Tentes',1),(4,'Bateaux en stationnement sur les eaux intérieures',2),(5,'Bateaux stationnaires',2),(6,'Etablissements flottants',2),(7,'Gares',5),(8,'Etablissements d’enseignement avec internat pour jeunes handicapés ou inadaptés',7),(9,'Etablissements d’hébergement pour adultes handicapés',7),(10,'Etablissements médico-éducatifs avec internat pour jeunes handicapés ou inadaptés',7),(11,'Structures d’accueil pour personnes âgées',7),(12,'Structures d’accueil pour personnes handicapées',7),(13,'Cabarets',8),(14,'Cinéma',8),(15,'Cirques non forains',8),(16,'Salles d\'audition',8),(17,'Salle de conférences',8),(18,'Salles de pari',8),(19,'Salles de projection',8),(20,'Salles de quartier (ou assimilée)',8),(21,'Salles de réunions',8),(22,'Salles de spectacles',8),(23,'Salles multimédia',8),(24,'Salles polyvalentes à dominante sportive, dont la superficie unitaire est supérieure ou égale à 1 200 m2',8),(25,'Salles polyvalentes non visée par le Type X (salle polyvalente qui n’a pas une destination unique)',8),(26,'Salles réservées aux associations',8),(27,'Aires de vente',9),(28,'Boutiques',9),(29,'Centres commerciaux',9),(30,'Locaux de vente',9),(31,'Magasin de vente',9),(32,'Bars',10),(33,'Brasseries',10),(34,'Cafétaria',10),(35,'Cafés',10),(36,'Cantines',10),(37,'Débits de boissons',10),(38,'Restaurants',10),(39,'Hôtels',11),(40,'Motels',11),(41,'Pensions de famille',11),(42,'Hôtels-restaurants d’altitude',12),(43,'Bals',13),(46,'Salles de danse',13),(47,'Salles de jeux',13),(48,'Arènes',14),(49,'Hippodromes',14),(50,'Piscines',14),(51,'Pistes de patinage',14),(52,'Stades',14),(53,'Terrains de sport',14),(54,'Parcs de stationnement couverts',16),(55,'Auberges de jeunesse (comprenant au moins un local collectif à sommeil)',17),(56,'Auto-écoles',17),(57,'Centres aérés',17),(58,'Centres de loisirs (sans hébergement)',17),(59,'Centres de vacances',17),(60,'Colonies de vacances',17),(61,'Crèches',17),(62,'Ecoles maternelles',17),(63,'Etablissements d’enseignement',17),(64,'Etablissements de formation',17),(65,'Haltes-garderies',17),(66,'Internats des établissements de l\'enseignement primaire et secondaire',17),(67,'Jardins d\'enfant',17),(68,'Lycee public',17),(69,'Refuges de montagne',18),(70,'Bibliothèques',19),(71,'Centres de documentation et de consultation d’archives',19),(72,'Structures gonflables',20),(73,'Etablissements à vocation commerciale destinés à des expositions',21),(74,'Foires-expositions',21),(75,'Salles d’exposition à caractère permanent n’ayant pas une vocation de foire ou de salons ',21),(76,'Salles d’expositions de véhicules automobiles, bateaux, machines et autres volumineux biens d’équipements assimilables',21),(77,'Salons à caractère temporaire',21),(78,'Etablissements de cure thermale ou de thalassothérapie',22),(79,'Etablissements de santé publics ou privés dispensant des soins de courte durée en médecine, chirurgie, obstétrique',22),(80,'Etablissements de santé publics ou privés dispensant des soins de psychiatrie, de suite ou de réadaptation, des soins de longue durée, à des personnes n\'ayant pas leur autonomie de vie dont l\'état nécessite une surveillance médicale constante',22),(81,'Etablissements de thalassothérapie',22),(82,'Pouponnières',22),(83,'Eglises',23),(84,'Mosquées',23),(85,'Synagogues',23),(86,'Temples',23),(87,'Administrations',24),(88,'Banques',24),(89,'Bureaux',24),(90,'Hôtels de ville',24),(91,'Manèges',25),(92,'Patinoires',25),(93,'Piscines couvertes, transformables et mixtes',25),(94,'Salles d\'éducation physique et sportive',25),(95,'Salles omnisports',25),(96,'Salles polyvalentes à dominante sportive, dont l\'aire d\'activité est inférieure à 1200m² et la hauteur sous plafond supérieure ou égale à 6,50 mètres, etc',25),(97,'Salles sportives spécialisées',25),(98,'Musées',26),(99,'Salles destinées à recevoir des expositions à vocation culturelle, scientifique, technique, artistique, etc. ayant un caractère temporaire',26),(101,'Collège public',17),(103,'En attente de classement',27),(104,'Parc d\'attraction',14),(105,'Locaux à usage collectif d\'une surface unitaire supérieure à 50 mètres carrés des logements-foyers et de l\'habitat de loisirs à gestion collective',15),(106,'Bâtiments ou locaux à usage d\'hébergement qui ne relèvent d\'aucun type défini à l\'article GN 1 et qui permettent d\'accueillir plus de 15 et moins de 100 personnes n\'y élisant pas domicile',15),(107,'Hébergement de mineurs en dehors de leurs familles, le seuil de l\'effectif est fixé à 7 mineurs',15),(108,'Maisons d\'assistants maternels (MAM) dont les locaux accessibles au public sont strictement limités à un seul étage sur rez-de-chaussée et dont l\'effectif ne dépasse pas 16 enfants',15),(109,'Ecoles primaires',17),(110,'Lycee privé',17),(111,'Collège privé',17),(112,'Lycée agricole',17),(113,'Lycée maritime',17),(115, 'Parc de stationnement mixte', 16),(116, 'Parc de stationnement largement ventilé', 16),(117, 'Parc de stationnement à rangement automatisé', 16);
 INSERT INTO `typeactivite` VALUES (NULL,'EM',3);
 INSERT INTO `typeactivite` VALUES (NULL,'Établissements pénitentiaires',4);
 INSERT INTO `typeactivite` VALUES (NULL,'Grands établissements à exploitation multiple',6);
@@ -2619,6 +2637,8 @@ CREATE TABLE `utilisateur` (
   `PASSWD_UTILISATEUR` varchar(32) DEFAULT NULL,
   `LASTACTION_UTILISATEUR` timestamp NULL DEFAULT NULL,
   `ACTIF_UTILISATEUR` tinyint(1) NOT NULL DEFAULT '1',
+  `FAILED_LOGIN_ATTEMPTS_UTILISATEUR` tinyint(1) unsigned NOT NULL DEFAULT 0,
+  `IP_UTILISATEUR` VARCHAR(45) DEFAULT NULL,
   `NUMINSEE_COMMUNE` varchar(5) DEFAULT NULL,
   `ID_UTILISATEURINFORMATIONS` bigint(20) unsigned NOT NULL,
   `ID_GROUPE` bigint(20) unsigned NOT NULL,
@@ -2636,7 +2656,7 @@ CREATE TABLE `utilisateur` (
 
 LOCK TABLES `utilisateur` WRITE;
 /*!40000 ALTER TABLE `utilisateur` DISABLE KEYS */;
-INSERT INTO `utilisateur` VALUES (1,'root','b4b8daf4b8ea9d39568719e1e320076f',NULL,1,NULL,1,1);
+INSERT INTO `utilisateur` VALUES (1,'root','0ab182b5717693a278cd986898742e76',NULL,1,0,NULL,NULL,1,1);
 /*!40000 ALTER TABLE `utilisateur` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2877,3 +2897,81 @@ CREATE TABLE IF NOT EXISTS `prescriptionreglassoc` (
     ON UPDATE CASCADE)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8;
+
+
+-- -----------------------------------------------------
+-- Table`cache` 
+-- -----------------------------------------------------
+
+CREATE TABLE `cache` (
+  `ID_CACHE` varchar(250) NOT NULL,
+  `VALUE_CACHE` text,
+  `EXPIRE_CACHE` int,
+  PRIMARY KEY (`ID_CACHE`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+-- -----------------------------------------------------
+-- Table`changement` 
+-- -----------------------------------------------------
+
+DROP TABLE IF EXISTS `changement`;
+
+CREATE TABLE `changement` (
+  `ID_CHANGEMENT` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `LIBELLE_CHANGEMENT` varchar(255) DEFAULT NULL,
+  `MESSAGE_CHANGEMENT` text,
+  PRIMARY KEY (`ID_CHANGEMENT`)
+) 
+ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+LOCK TABLES `changement` WRITE;
+INSERT INTO `changement` VALUES (1,'Changement de statut','<p>Bonjour,</p>\r\n<p>L\'&eacute;tablissement {etablissementNumeroId} {etablissementLibelle} est pass&eacute; au statut {etablissementStatut}.</p>\r\n<p>Bonne journ&eacute;e,</p>\r\n<p>Pr&eacute;varisc.</p>'),(2,'Changement d\'avis','<p>Bonjour,</p>\r\n<p>L\'&eacute;tablissement {etablissementNumeroId} {etablissementLibelle} est maintenant sous avis {etablissementAvis}.</p>\r\n<p>Bonne journ&eacute;e,</p>\r\n<p>Pr&eacute;varisc.</p>'),(3,'Changement de classement','<p>Bonjour,</p>\r\n<p>L\'&eacute;tablissement {etablissementNumeroId} {etablissementLibelle} est maintenant de cat&eacute;gorie {categorieEtablissement}, de type {typePrincipalEtablissement} - {activitePrincipaleEtablissement}.</p>\r\n<p>Bonne journ&eacute;e,</p>\r\n<p>Pr&eacute;varisc.</p>');
+UNLOCK TABLES;
+
+-- -----------------------------------------------------
+-- View`etablissementinformationsactuel` 
+-- -----------------------------------------------------
+
+CREATE VIEW etablissementinformationsactuel AS 
+SELECT * FROM `etablissementinformations` ei WHERE ei.DATE_ETABLISSEMENTINFORMATIONS = 
+( 
+SELECT MAX(etablissementinformations.DATE_ETABLISSEMENTINFORMATIONS) FROM etablissementinformations 
+WHERE etablissementinformations.ID_ETABLISSEMENT = ei.ID_ETABLISSEMENT 
+);
+
+
+-- -----------------------------------------------------
+-- View `etablissementinformationsactuel` 
+-- -----------------------------------------------------
+
+DROP VIEW IF EXISTS `etablissementinformationsactuel`;
+
+CREATE VIEW `etablissementinformationsactuel` AS 
+SELECT * FROM `etablissementinformations` ei WHERE ei.DATE_ETABLISSEMENTINFORMATIONS = 
+( 
+    SELECT MAX(etablissementinformations.DATE_ETABLISSEMENTINFORMATIONS) FROM etablissementinformations 
+    WHERE etablissementinformations.ID_ETABLISSEMENT = ei.ID_ETABLISSEMENT 
+);
+
+
+-- -----------------------------------------------------
+-- View `dossierdernierevisite` 
+-- -----------------------------------------------------
+
+DROP VIEW IF EXISTS `dossierdernierevisite`;
+
+CREATE VIEW `dossierdernierevisite` AS 
+SELECT 
+    ed.ID_ETABLISSEMENT,
+    MAX(d.DATEVISITE_DOSSIER) as DATEVISITE_DOSSIER,
+    DATE_ADD(MAX(d.DATEVISITE_DOSSIER), INTERVAL ei.PERIODICITE_ETABLISSEMENTINFORMATIONS MONTH) as DATEPROCHAINEVISITE_DOSSIER
+FROM dossier d
+    INNER JOIN dossiernature n on d.ID_DOSSIER = n.ID_DOSSIER
+    INNER JOIN etablissementdossier ed on ed.ID_DOSSIER = d.ID_DOSSIER
+    INNER JOIN etablissementinformationsactuel ei on ei.ID_ETABLISSEMENT = ed.ID_ETABLISSEMENT
+WHERE 
+    n.ID_NATURE IN(26,21,47,48)
+    AND d.AVIS_DOSSIER_COMMISSION IS NOT NULL
+    AND d.AVIS_DOSSIER_COMMISSION > 0
+GROUP BY ed.ID_ETABLISSEMENT;

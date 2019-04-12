@@ -22,13 +22,13 @@ function addPrescription($listePrescription,$type,$odf){
         try{
 			$prescription = $odf->listeExploitation;
 		} catch (Exception $e) {
-
+                    
 		}
     }else if ($type == 2){
         try{
 			$prescription = $odf->listeAmelioration;
 		} catch (Exception $e) {
-
+                    
 		}
     }
 
@@ -71,33 +71,29 @@ function addPrescription($listePrescription,$type,$odf){
                     }
                     if($cpt)
                     {
-                        if($type != 0){
-                            $prescription->setVars('num', $listePrescription[$i][0]['NUM_PRESCRIPTION_DOSSIER'], true, 'UTF-8');
-                        }
+                        addChamp($prescription, 'num', $listePrescription[$i][0]['NUM_PRESCRIPTION_DOSSIER']);
 
                         if( $listePrescription[$i][0]['LIBELLE_PRESCRIPTION_DOSSIER'] == '')
                         {
-                            $prescription->setVars('libelle', $listePrescription[$i][0]['PRESCRIPTIONTYPE_LIBELLE'], true, 'UTF-8');
+                            addChamp($prescription, 'libelle', $listePrescription[$i][0]['PRESCRIPTIONTYPE_LIBELLE']);
                         }else{
-                            $prescription->setVars('libelle', $listePrescription[$i][0]['LIBELLE_PRESCRIPTION_DOSSIER'], true, 'UTF-8');
+                            addChamp($prescription, 'libelle', $listePrescription[$i][0]['LIBELLE_PRESCRIPTION_DOSSIER']);
                         }
                         $cpt = false;
                     }
                     $nbCpt--;
                 }
-                $prescription->setVars('textearticle',$textearticle,true,'UTF-8');
+                addChamp($prescription, 'textearticle', $textearticle);
                 $prescription->merge();
             }
 
-        }else{
-
-            if($type != 0){
-                $prescription->setVars('num', '', true, 'UTF-8');
-            }
-            $prescription->setVars('libelle', '', true, 'UTF-8');
-            $prescription->setVars('textearticle','',true,'UTF-8');
+        } else {
+            addChamp($prescription, 'num', "");
+            addChamp($prescription, 'libelle', "");
+            addChamp($prescription, 'textearticle', "");
             $prescription->merge();
         }
+        
     }
 
 }
@@ -224,6 +220,19 @@ foreach($this->membresFiles as $val => $membre){
 							break;
 						}
 						addChamp($dossInfos,'avisDossier', $avis);
+                                                
+                                                switch($dossierInfos['AVIS_DOSSIER_COMMISSION']){
+							case 1:
+								$avis = "Favorable";
+							break;
+							case 2:
+								$avis = "Défavorable";
+							break;
+							default:
+								$avis = "";
+							break;
+						}
+						addChamp($dossInfos,'avisDossierCommission', $avis);
 
 						$listeDocUrba = "";
 						foreach($dossierInfos["listeDocUrba"] as $va => $docurb){

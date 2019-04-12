@@ -61,11 +61,25 @@ PREVARISC_DB_HOST | Adresse de la base de données | Adresse IP
 PREVARISC_DB_USERNAME | Nom d'utilisateur à utiliser lors de la connexion à la base de données | Chaine de caractères
 PREVARISC_DB_PASSWORD | Mot de passe de connexion à la base de données | Chaine de caractères
 PREVARISC_DB_DBNAME | Nom de la base de données | Chaine de caractères
-PREVARISC_CACHE_LIFETIME | Durée de vie du cache APC | Valeur numérique (secondes)
+PREVARISC_MAIL_ENABLED | [FACULTATIF] Activation de la gestion du système d'alerte par mail | 1 ou 0
+PREVARISC_MAIL_TRANSPORT | [FACULTATIF] Système de transport des mails | "smtp" ou "Sendmail"
+PREVARISC_MAIL_HOST | [FACULTATIF] IP du serveur mails | Chaîne de charactères
+PREVARISC_MAIL_USERNAME | [FACULTATIF] Nom d'utilisateur ayant les droits de connexion au serveur Mail (peut-être vide si aucune authentification nécessaire) | Chaîne de caractères
+PREVARISC_MAIL_PASSWORD | [FACULTATIF] Mot de passe de l'utilisateur ayant les droits de connexion au serveur Mail | Chaîne de caractères
+SetEnv PREVARISC_MAIL_PORT | [FACULTATIF] Le port du serveur mail | Nombres (exmple : "25")
+PREVARISC_MAIL_SENDER | [FACULTATIF] Adresse email apparaissant sur les mails envoyés par l'application | Chaîne de caractères (format email, par exemple : "no-reply@sdis.fr")
+PREVARISC_MAIL_SENDER_NAME | [FACULTATIF] Nom associé à l'email définit précédemment et apparaissant sur les mails envoyés par l'application | Chaîne de caractères (exemple : "Prévarisc")
+PREVARISC_CACHE_LIFETIME | Durée de vie du cache, actif si valeur > 0 | Valeur numérique (secondes)
+PREVARISC_CACHE_ADAPTER | Adapter backend de cache du cache lié à la factory Zend_Cache, default "APC" | Chaine de caractères
+PREVARISC_CACHE_HOST | Adresse IP du cache backend | Adresse IP
+PREVARISC_CACHE_PORT | Port du cache backend | Valeur numérique
+PREVARISC_CACHE_DIR | Répertoire des fichiers de cache si cache filesystem | Répertoire
 PREVARISC_SECURITY_SALT | Chaine utilisée pour le cryptage des mots de passe utilisateur | Chaine alphanumérique de longueur 32 (exemple : 7aec3ab8e8d025c19e8fc8b6e0d75227 salt utilisé par défaut)
+PREVARISC_CALENDAR_REFRESH_TIME | [FACULTATIF] L'intervale de temps entre chaque rafraichissement de la synchronisation des calendriers | durée en format ISO 8601 (exemple : "PT5M" utilisé par défaut pour un rafraichissement tous les 5 minutes)
 PREVARISC_LDAP_ENABLED | [FACULTATIF] Activation de la connexion des utilisateurs via LDAP | 1 ou 0
 PREVARISC_LDAP_HOST | [FACULTATIF] Adresse du serveur LDAP | Adresse IP
 PREVARISC_LDAP_USERNAME | [FACULTATIF] Nom d'utilisateur à utiliser lors de la connexion au LDAP | Chaine de caractères
+PREVARISC_LDAP_PORT | [FACULTATIF] Port de connexion au LDAP | Entier
 PREVARISC_LDAP_PASSWORD | [FACULTATIF] Mot de passe de connexion au LDAP | Chaine de caractères
 PREVARISC_LDAP_BASEDN | [FACULTATIF] Chaine de selection afin de trouver les utilisateurs dans le LDAP | Chaine de caractères (exemple : DC=sdisxx,DC=fr)
 PREVARISC_LDAP_ACCOUNT_FORM | [FACULTATIF] Format des comptes LDAP à utiliser, par défaut domaine\login   | Entier voir class Zend_Ldap
@@ -88,7 +102,18 @@ PREVARISC_DATA_PATH | [FACULTATIF] Préfixe des URL d'accès aux médias et piè
 PREVARISC_APPLICATION_PATH | [FACULTATIF] Répertoire racine de l'application Prévarisc | Chaine de caractères
 PREVARISC_REVISION | [FACULTATIF] Forcer la révision de l'installation prévarisc, <commit_git> sinon   | Chaine de caractères
 PREVARISC_BRANCH | [FACULTATIF] Forcer la branche de l'installation prévarisc, <branche_git> sinon   | Chaine de caractères
-
+PREVARISC_CAS_ENABLED | [FACULTATIF] Permet d'activer l'authentification CAS | 0 ou 1 pour l'activer
+PREVARISC_CAS_HOST | [FACULTATIF] Le hostname du serveur cas, ex: cas.example.com | Chaine de caractères
+PREVARISC_CAS_PORT | [FACULTATIF] Le port du serveur cas, normalement 443 | Entier
+PREVARISC_CAS_CONTEXT | [FACULTATIF] Le contexte, ou URI CAS, ex : 'cas' | Chaine de caractères
+PREVARISC_CAS_NO_SERVER_VALIDATION | [FACULTATIF] Désactive la vérification du certificat du serveur CAS | Chaine de caractères
+PREVARISC_CAS_VERSION | [FACULTATIF] Permet de préciser la version du protocol cas, 2.0 par défaut | 1.0, 2.0, 3.0
+PREVARISC_NTLM_ENABLED | [FACULTATIF] Permet d'activer l'authentification NTLM | 0 ou 1 pour l'activer
+PREVARISC_PLUGIN_GEOCONCEPT_URL | [FACULTATIF] URL du serveur Geoconcept couche WMTS | Chaine de caractères
+PREVARISC_PLUGIN_GEOCONCEPT_LAYER | [FACULTATIF] Nom de la couche WMTS de base | Chaine de caractères
+PREVARISC_PLUGIN_GEOCONCEPT_APP_ID | [FACULTATIF] App id si couches derrière authentification | Chaine de caractères
+PREVARISC_PLUGIN_GEOCONCEPT_TOKEN | [FACULTATIF] Token si couches derrière authentification| Chaine de caractères
+PREVARISC_PLUGIN_GEOCONCEPT_GEOCODER | [FACULTATIF] URL du géocoder | Chaine de caractères
 
 * Taper :```/etc/init.d/apache2 restart```
 
@@ -126,6 +151,23 @@ PREVARISC_BRANCH | [FACULTATIF] Forcer la branche de l'installation prévarisc, 
 * Sur le poste Windows, ouvrir le fichier C:\windows\system32\drivers\etc\hosts et ajouter la ligne avec l’adresse IP du serveur Debian suivi de “prevarisc.sdis??.fr” (ou sinon, faire un enregistrement DNS)
 * Ouvrir Firefox et saisir http://prevarisc.sdis??.fr
 * A ce point vous devez être capable d'accéder à Prevarisc ! Le premier compte utilisateur est ```root```, mot de passe ```root``` (à désactiver le plus rapidement possible pour des raisons de sécurité).
+
+
+## Etape 6 (optionnelle) : installation d'un cache mysql (php>5.4) ##
+
+Pour les installations avec php > 5.4, APC n'est plus supporté. Il faut installer un cache alternatif, mysql par exemple :
+* download du module php memcache
+* Taper : ```tar -xvzf memcache-2.2.7.tgz```
+* Taper : ```cd memcache-2.2.7```
+* Taper : ```phpize```
+* Taper : ```./configure```
+* Taper : ```make```
+* Taper : ```sudo make install```
+* Vérifier que memcache est bien installé ```php -m | grep memcache``` sinon ajout de : ```extension=memcache.so``` dans le php.ini
+* Jouer le sql d'activation du cache, taper : ```mysql -u root -p prevarisc < sql/init/enable_mysql_cache.sql```
+* Taper : ```sudo /etc/init.d/mysql restart```
+* Modifier le vhost apache pour modifier les variables PREVARISC_CACHE_ADAPTER en "Cache_MySQLMemcached" voir PREVARISC_CACHE_HOST si le backend est installé sur une machine distante.
+* Taper : ```sudo /etc/init.d/httpd restart```
 
 # Mise à jour de la base de données de Prevarisc #
 

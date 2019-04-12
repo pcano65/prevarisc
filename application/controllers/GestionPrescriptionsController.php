@@ -235,8 +235,8 @@ class GestionPrescriptionsController extends Zend_Controller_Action
         $dbTexte = new Model_DbTable_PrescriptionTexteListe();
         $dbArticle = new Model_DbTable_PrescriptionArticleListe();
 
-        $this->view->listeTextes = $dbTexte->getAllTextes();
-        $this->view->listeArticles = $dbArticle->getAllArticles();
+        $this->view->listeTextes = $dbTexte->getAllTextes(1);
+        $this->view->listeArticles = $dbArticle->getAllArticles(1);
 
         $service_prescription = new Service_Prescriptions;
         if ($this->_getParam('idPrescType')) {
@@ -380,7 +380,6 @@ class GestionPrescriptionsController extends Zend_Controller_Action
         $liste_textes = $service_prescTextes->getTextesListe();
 
         $this->view->liste_textes = $liste_textes;
-        //Zend_Debug::dump($liste_textes);
     }
 
     public function gestionTextesAddAction(){
@@ -446,7 +445,6 @@ class GestionPrescriptionsController extends Zend_Controller_Action
         $liste_articles = $service_prescription->getArticlesListe();
 
         $this->view->liste_articles = $liste_articles;
-        //Zend_Debug::dump($liste_textes);
     }
 
     public function gestionArticlesAddAction(){
@@ -507,9 +505,9 @@ class GestionPrescriptionsController extends Zend_Controller_Action
 
         //On envoi à la vue l'ensemble des textes et articles
         $dbTexte = new Model_DbTable_PrescriptionTexteListe();
-        $this->view->listeTextes = $dbTexte->getAllTextes();
+        $this->view->listeTextes = $dbTexte->getAllTextes(1);
         $dbArticle = new Model_DbTable_PrescriptionArticleListe();
-        $this->view->listeArticles = $dbArticle->getAllArticles();
+        $this->view->listeArticles = $dbArticle->getAllArticles(1);
 
         $this->view->action = 'add';
         $this->view->typeAction = 'rappel-reg';
@@ -541,5 +539,30 @@ class GestionPrescriptionsController extends Zend_Controller_Action
     
     public function prescriptionFormAction(){
         $this->_helper->layout->setLayout('menu_admin');
+    }
+
+
+    public function moveAction(){
+        //action permettant la sauvegarde de l'ordre des prescriptions type
+        $this->_helper->viewRenderer->setNoRender();
+        if ( $this->_request->isPost() ) {
+            $service_prescription = new Service_Prescriptions;
+            try {
+                $post = $this->_request->getPost();
+                if(isset($post['prescType'])){
+                    $service_prescription->setOrder($post['prescType'],$post['type']);
+                }elseif(isset($post['categorie'])){
+                    $service_prescription->setOrder($post['categorie'],$post['type']);
+                }elseif(isset($post['texte'])){
+                    $service_prescription->setOrder($post['texte'],$post['type']);
+                }elseif(isset($post['article'])){
+                    $service_prescription->setOrder($post['article'],$post['type']);
+                }
+
+            }catch (Exception $e) {
+
+            }
+        }
+
     }
 }

@@ -67,14 +67,37 @@ class Plugin_ACL extends Zend_Controller_Plugin_Abstract
     public function preDispatch(Zend_Controller_Request_Abstract $request)
     {
         // Si l'utilisateur est connecté avec l'application mobile, on utilise le partage d'un token
-        if($request->getParam('key') === getenv('PREVARISC_SECURITY_KEY'))
-        {
+        if($request->getParam('key') === getenv('PREVARISC_SECURITY_KEY')) {
             return ;
+        }
+        
+        if (getenv('PREVARISC_CAS_ENABLED') == 1) {
+                
+            if (getenv('PREVARISC_DEBUG_ENABLED') == 1) {
+                // Enable debugging
+                phpCAS::setDebug();
+                // Enable verbose error messages. Disable in production!
+                phpCAS::setVerbose(true);
+            }
+
+            // Initialize phpCAS
+            if (!phpCAS::isInitialized()) {
+                phpCAS::client(getenv('PREVARISC_CAS_VERSION') ?  : CAS_VERSION_2_0, getenv('PREVARISC_CAS_HOST'), (int) getenv('PREVARISC_CAS_PORT'), getenv('PREVARISC_CAS_CONTEXT'), false);
+
+                 phpCAS::setLang(PHPCAS_LANG_FRENCH);
+            }
+            if (getenv('PREVARISC_CAS_NO_SERVER_VALIDATION') == 1) {
+                phpCAS::setNoCasServerValidation();
+            }
+
+            // force CAS authentication
+            phpCAS::forceAuthentication();
         }
 
         // Si l'utilisateur n'est pas connecté, alors on le redirige vers la page de login (si il ne s'y trouve pas encore)
-        else if ( !Zend_Auth::getInstance()->hasIdentity() && !in_array($request->getActionName(), array("login", "error")))  {
-            $redirector = Zend_Controller_Action_HelperBroker::getStaticHelper('redirector')->gotoSimple('login', 'session', 'default');
+        if ( !Zend_Auth::getInstance()->hasIdentity() && !in_array($request->getActionName(), array("login", "error")))  {
+            $redirect = $_SERVER['REQUEST_URI'] == '/' ? [] : ['redirect' => urlencode($_SERVER['REQUEST_URI'])];
+            $redirector = Zend_Controller_Action_HelperBroker::getStaticHelper('redirector')->gotoSimple('login', 'session', 'default', $redirect);
         }
         else if(Zend_Auth::getInstance()->hasIdentity()) {
 
@@ -163,7 +186,7 @@ class Plugin_ACL extends Zend_Controller_Plugin_Abstract
 
                         $resource_imploded = implode($resource_exploded, '_');
                         $list_resources_finale =  array($resource_imploded);
-                        
+
 			$resources = new ResourceContainer($list_resources_finale);
                         foreach($resources as $r) {
                             if(!$acl->has($r)) {

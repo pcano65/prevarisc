@@ -197,15 +197,19 @@ class Service_Dossier
         //On récupère le premier établissements afin de mettre à jour ses textes applicables lorsque l'on est dans une visite
         if (2 == $type || 3 == $type) {
             $tabEtablissement = $dbDossier->getEtablissementDossier($id_dossier);
-            $id_etablissement = $tabEtablissement[0]['ID_ETABLISSEMENT'];
+            $id_etablissement = isset($tabEtablissement[0]) ? $tabEtablissement[0]['ID_ETABLISSEMENT'] : null;
         }
 
         foreach ($textes_applicables as $id_texte_applicable => $is_active) {
             if (!$is_active) {
-                if ($dossierTexteApplicable->find($id_texte_applicable, $id_dossier)->current() !== null) {
-                    $dossierTexteApplicable->find($id_texte_applicable, $id_dossier)->current()->delete();
-                    if (2 == $type || 3 == $type) {
-                        $etsTexteApplicable->find($id_texte_applicable, $id_etablissement)->current()->delete();
+                $texte_applicable = $dossierTexteApplicable->find($id_texte_applicable, $id_dossier)->current();
+                if ($texte_applicable !== null) {
+                    $texte_applicable->delete();
+                    if ((2 == $type || 3 == $type) && $id_etablissement) {
+                        $texte_applicable = $etsTexteApplicable->find($id_texte_applicable, $id_etablissement)->current();
+                        if ($texte_applicable !== null) {
+				$texte_applicable->delete();
+			}
                     }
                 }
             } else {
@@ -214,7 +218,7 @@ class Service_Dossier
                     $row->ID_TEXTESAPPL = $id_texte_applicable;
                     $row->ID_DOSSIER = $id_dossier;
                     $row->save();
-                    if (2 == $type || 3 == $type) {
+                    if ((2 == $type || 3 == $type) && $id_etablissement) {
                         $exist = $etsTexteApplicable->find($id_texte_applicable,$id_etablissement)->current();
                         if (! $exist) {
                             $row = $etsTexteApplicable->createRow();
@@ -641,15 +645,19 @@ class Service_Dossier
     {
         $dbPrescDossier = new Model_DbTable_PrescriptionDossier();
         $dbPrescDossierAssoc = new Model_DbTable_PrescriptionDossierAssoc();
+        $j = 0;
         foreach($prescriptionRegl as $val => $ue){
             $prescEdit = $dbPrescDossier->createRow();
             $prescEdit->ID_DOSSIER = $idDossier;
-            $prescEdit->LIBELLE_PRESCRIPTION_DOSSIER = $ue[0]['PRESCRIPTIONREGL_LIBELLE'];
+            if (array_key_exists(0, $ue) && array_key_exists('PRESCRIPTIONREGL_LIBELLE', $ue[0])) {
+                $prescEdit->LIBELLE_PRESCRIPTION_DOSSIER = $ue[0]['PRESCRIPTIONREGL_LIBELLE'];    
+            } 
             $prescEdit->TYPE_PRESCRIPTION_DOSSIER = 0;
+            $prescEdit->NUM_PRESCRIPTION_DOSSIER = $j++;
             $prescEdit->save();
 
             $nombreAssoc = count($ue);
-            for ($i = 0; $i< $nombreAssoc; $i ++) {
+            for ($i = 0; $i < $nombreAssoc; $i++) {
                 $newAssoc = $dbPrescDossierAssoc->createRow();
                 $newAssoc->NUM_PRESCRIPTION_DOSSIERASSOC = $i + 1;
                 $newAssoc->ID_PRESCRIPTION_DOSSIER = $prescEdit->ID_PRESCRIPTION_DOSSIER;
@@ -665,10 +673,12 @@ class Service_Dossier
 
         $numPresc = 1;
         foreach ($tabId as $idPrescDoss) {
-            $updatePrescDossier = $DBprescDossier->find($idPrescDoss)->current();
-            $updatePrescDossier->NUM_PRESCRIPTION_DOSSIER = $numPresc;
-            $updatePrescDossier->save();
-            $numPresc++;
+            if ($idPrescDoss) {
+                $updatePrescDossier = $DBprescDossier->find($idPrescDoss)->current();
+                $updatePrescDossier->NUM_PRESCRIPTION_DOSSIER = $numPresc;
+                $updatePrescDossier->save();
+                $numPresc++;
+            }
         }
     }
 
@@ -729,7 +739,7 @@ class Service_Dossier
             //Cas d'une viste uniquement dans le cas d'une VP, inopinée, avant ouverture ou controle
             || in_array($idNature, array(21, 23, 24, 47)) && $dossier->DATEVISITE_DOSSIER
             //Cas d'un groupe deviste uniquement dans le cas d'une VP, inopinée, avant ouverture ou controle
-            || in_array($idNature, array(26, 28, 29, 48)) && $dossier->DATECOMM_DOSSIER;  
+            || in_array($idNature, array(26, 28, 29, 48)) && $dossier->DATECOMM_DOSSIER;
     }
     
     public function getDateDossier($dossier) {
@@ -755,6 +765,7 @@ class Service_Dossier
         $dbEtab = new Model_DbTable_Etablissement();
         $DBdossier = new Model_DbTable_Dossier();
         $service_etablissement = new Service_Etablissement();
+
         $updatedEtab = array();
         
         foreach ($listeEtab as $val => $ue) {
@@ -780,7 +791,6 @@ class Service_Dossier
             if ($MAJEtab == 1) {
                 $etabToEdit->ID_DOSSIER_DONNANT_AVIS = $nouveauDossier->ID_DOSSIER;
                 $etabToEdit->save();
-                $cache->remove('etablissement_id_'.$ue['ID_ETABLISSEMENT']);
                 $updatedEtab[] = $etabToEdit;
                 
                 if ($repercuterAvis) {
@@ -790,13 +800,20 @@ class Service_Dossier
                             $etabToEdit = $dbEtab->find($etabEnfant["ID_ETABLISSEMENT"])->current();
                             $etabToEdit->ID_DOSSIER_DONNANT_AVIS = $nouveauDossier->ID_DOSSIER;
                             $etabToEdit->save();
-                            $cache->remove('etablissement_id_'.$etabEnfant['ID_ETABLISSEMENT']);
                             $updatedEtab[] = $etabToEdit;
                         }
                     }
                 }
             }
         }
+        
+        foreach($updatedEtab as $etablissement) {
+            $cache->remove(sprintf('etablissement_id_%d', $etablissement['ID_ETABLISSEMENT']));
+            if ($parent = $dbEtab->getParent($etablissement['ID_ETABLISSEMENT'])) {
+                $cache->remove(sprintf('etablissement_id_%d', $parent['ID_ETABLISSEMENT']));
+            }
+        }
+        
         return $updatedEtab;
     }
     

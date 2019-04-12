@@ -4,7 +4,7 @@
 
 	<div class='navbar-form form-search well well-small' style='margin-bottom: 5px;'>
             <div class="input-append pull-left">
-                <input type="text" name='label' class="input-xlarge search-query" placeholder="Libellé de l'établissement ou son #ID ..." value='<?php if(isset($_GET["label"])) echo $_GET["label"] ?>' />
+                <input type="text" name='label' class="input-xlarge search-query" placeholder="Libellé de l'établissement ou son #ID ..." value="<?php if(isset($_GET["label"])) echo htmlentities($_GET["label"]) ?>" />
                 <input type='submit' class="btn btn_search" value="Rechercher" disabled />
                 <input type='hidden' name='page' value="1" />
             </div>
@@ -188,7 +188,7 @@
 			}
 			else {
 				$(container).find(".load").show();
-				$.post("/search/display-ajax-search", {items: 'etablissement', parent: $(this).attr("id")}, function(html) {
+				$.post("/search/display-ajax-search-etablissement", {parent: $(this).attr("id")}, function(html) {
 					$(container).toggleClass("active").find(".load").hide();
 					$(container).after("<li class='ui-helper-hidden' style='overflow: auto; height: auto;' >" + html + "</li>").next().slideDown();
 				});
@@ -211,7 +211,8 @@
 
 		// Auto complétion de la ville
         $("form#zone_de_recherche_modal input[name='commune_ac']").autocomplete("/api/1.0/adresse/get_communes", {
-            minChars: 3,
+            minChars: 2,
+            cacheLength: 0,
             parse: function(data) {
                 return $.map(data["response"], function(row) {return {data: row,value: row.LIBELLE_COMMUNE,result: row.LIBELLE_COMMUNE}});
             },
@@ -229,7 +230,8 @@
 
         // Auto complétion de la rue
         $("form#zone_de_recherche_modal input[name='voie_ac']").autocomplete('/api/1.0/adresse/get_voies', {
-            minChars: 3,
+            minChars: 2,
+            cacheLength: 0,
             extraParams: { code_insee: function(){ return $("input[name='code_insee']").val() } },
             parse: function(data) {
                 return $.map(data["response"], function(row) { return {data: row,value: row.LIBELLE_RUE,result: row.LIBELLE_RUE} });

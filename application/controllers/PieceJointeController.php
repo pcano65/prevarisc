@@ -25,7 +25,7 @@ class PieceJointeController extends Zend_Controller_Action
             $this->view->identifiant = $this->_request->id;
             $this->view->pjcomm = $this->_request->pjcomm;
             $listePj = $DBused->affichagePieceJointe("dossierpj", "dossierpj.ID_DOSSIER", $this->_request->id);
-			$this->view->verrou = $this->_request->verrou;
+            $this->view->verrou = $this->_request->verrou;
         }
 
         // Cas établissement
@@ -79,7 +79,7 @@ class PieceJointeController extends Zend_Controller_Action
             $piece_jointe = $DBused->affichagePieceJointe("datecommissionpj", "piecejointe.ID_PIECEJOINTE", $this->_request->idpj);
         }
         
-        if (!$piece_jointe || count($piece_jointe) != 1) {
+        if (!$piece_jointe || count($piece_jointe) == 0) {
             throw new Zend_Controller_Action_Exception('Cannot find piece jointe for id '.$this->_request->idpj, 404);
         }
         
@@ -91,23 +91,20 @@ class PieceJointeController extends Zend_Controller_Action
         $this->_helper->layout()->disableLayout(); 
         $this->_helper->viewRenderer->setNoRender(true);
         
-        if (!is_readable($filepath)) {
+	if (!is_readable($filepath)) {
             throw new Zend_Controller_Action_Exception('Cannot read file '.$filepath, 404);
         }
-        
+	
+        ob_get_clean();
+	
         header("Pragma: public");
         header("Expires: -1");
         header("Cache-Control: public, must-revalidate, post-check=0, pre-check=0");
         header('Content-Disposition: attachment; filename="'.$filename.'"');
         header("Content-Type: application/octet-stream");
         
-        $handle = fopen($filepath, "r");
-        if ($handle) {
-            while (($buffer = fgets($handle, 4096)) !== false) {
-                echo $buffer;
-            }
-            fclose($handle);
-        }
+	readfile($filepath);
+	exit();
     }
 
 
@@ -141,8 +138,11 @@ class PieceJointeController extends Zend_Controller_Action
             }
             
             // Extension du fichier
-            $extension = strrchr($_FILES['fichier']['name'], ".");
-
+            $extension = strtolower(strrchr($_FILES['fichier']['name'], "."));
+            if (in_array($extension, array('.php', '.php4', '.php5', '.sh', '.ksh', '.csh'))) {
+                throw new Exception("Ce type de fichier n'est pas autorisé en upload");
+            }
+            
             // Date d'aujourd'hui
             $dateNow = new Zend_Date();
 
@@ -281,7 +281,7 @@ class PieceJointeController extends Zend_Controller_Action
             }
 
             // On supprime dans la BDD et physiquement
-            if ($DBitem != null) {
+            if ($pj != null && $DBitem != null) {
                 
                 $file_path = $this->store->getFilePath($pj, $this->_request->type, $this->_request->id);
                 $miniature_pj = $pj;

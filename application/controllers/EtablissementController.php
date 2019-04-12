@@ -5,19 +5,24 @@ class EtablissementController extends Zend_Controller_Action
     public function indexAction()
     {
         $this->_helper->layout->setLayout('etablissement');
+        $this->view->headScript()->appendFile('/js/tinymce.min.js');
 
         $service_etablissement = new Service_Etablissement;
         $service_groupement_communes = new Service_GroupementCommunes;
         $service_carto = new Service_Carto;
-
+        $DB_periodicite = new Model_DbTable_Periodicite;
         $etablissement = $service_etablissement->get($this->_request->id);
 
         $this->view->couches_cartographiques = $service_carto->getAll();
         $this->view->key_ign = getenv('PREVARISC_PLUGIN_IGNKEY');
         $this->view->key_googlemap = getenv('PREVARISC_PLUGIN_GOOGLEMAPKEY');
+        $this->view->geoconcept_url = getenv('PREVARISC_PLUGIN_GEOCONCEPT_URL');
 
         $this->view->etablissement = $etablissement;
+        $this->view->default_periodicite = $DB_periodicite->gn4ForEtablissement($etablissement);
         $this->view->groupements_de_communes = count($etablissement['adresses']) == 0 ? array() : $service_groupement_communes->findAll($etablissement['adresses'][0]["NUMINSEE_COMMUNE"]);
+
+        $this->view->avis = $service_etablissement->getAvisEtablissement($etablissement['general']['ID_ETABLISSEMENT'], $etablissement['general']['ID_DOSSIER_DONNANT_AVIS']);
 
         $this->view->store = Zend_Controller_Front::getInstance()->getParam('bootstrap')->getResource('dataStore');
     }
@@ -30,10 +35,15 @@ class EtablissementController extends Zend_Controller_Action
         $service_carto = new Service_Carto;
 
         $etablissement = $service_etablissement->get($this->_request->id);
+
+        $this->view->avis = $service_etablissement->getAvisEtablissement($etablissement['general']['ID_ETABLISSEMENT'], $etablissement['general']['ID_DOSSIER_DONNANT_AVIS']);
         
         $this->view->etablissement = $etablissement;
 
         $this->view->key_ign = getenv('PREVARISC_PLUGIN_IGNKEY');
+        $this->view->geoconcept_url = getenv('PREVARISC_PLUGIN_GEOCONCEPT_URL');
+        $this->view->default_lon = getenv('PREVARISC_CARTO_DEFAULT_LON') ? : "2.71490430425517";
+        $this->view->default_lat = getenv('PREVARISC_CARTO_DEFAULT_LAT') ? : "50.4727273438818";
 
         $service_genre = new Service_Genre;
         $service_statut = new Service_Statut;
@@ -58,8 +68,8 @@ class EtablissementController extends Zend_Controller_Action
         $this->view->DB_famille = $service_famille->getAll();
         $this->view->DB_classe = $service_classe->getAll();
         $this->view->DB_classement = $service_classement->getAll();
-
-        $this->view->key_ign = getenv('PREVARISC_PLUGIN_IGNKEY');
+        
+        $this->view->couches_cartographiques = $service_carto->getAll();
 
         $this->view->add = false;
 
@@ -70,9 +80,21 @@ class EtablissementController extends Zend_Controller_Action
         if($this->_request->isPost()) {
             try {
                 $post = $this->_request->getPost();
+                $options = '';
+                if (getenv('PREVARISC_MAIL_ENABLED') && getenv('PREVARISC_MAIL_ENABLED') == 1) {
+                    $typeAlerte = $service_etablissement->checkAlerte($etablissement, $post);
+
+                    if (unserialize($cache->load('acl'))->isAllowed($mygroupe, "alerte_email", "alerte_statut", "alerte_classement")) {
+                        if ($typeAlerte !== false) {
+                            $service_alerte = new Service_Alerte;
+                            $options = $service_alerte->getLink($typeAlerte);
+                        }
+                    }    
+                }
+                
                 $date = date("Y-m-d");
                 $service_etablissement->save($post['ID_GENRE'], $post, $this->_request->id, $date);
-                $this->_helper->flashMessenger(array('context' => 'success', 'title' => 'Mise à jour réussie !', 'message' => 'L\'établissement a bien été mis à jour.'));
+                $this->_helper->flashMessenger(array('context' => 'success', 'title' => 'Mise à jour réussie !', 'message' => 'L\'établissement a bien été mis à jour.' . $options));
                 $this->_helper->redirector('index', null, null, array('id' => $this->_request->id));
             }
             catch(Exception $e) {
@@ -95,6 +117,7 @@ class EtablissementController extends Zend_Controller_Action
         $service_famille = new Service_Famille;
         $service_classe = new Service_Classe;
         $service_classement = new Service_Classement;
+        $service_carto = new Service_Carto;
 
         $this->view->DB_genre = $service_genre->getAll();
         $this->view->DB_statut = $service_statut->getAll();
@@ -111,6 +134,10 @@ class EtablissementController extends Zend_Controller_Action
         $this->view->add = true;
         
         $this->view->key_ign = getenv('PREVARISC_PLUGIN_IGNKEY');
+        $this->view->geoconcept_url = getenv('PREVARISC_PLUGIN_GEOCONCEPT_URL');
+        $this->view->default_lon = getenv('PREVARISC_CARTO_DEFAULT_LON') ? : "2.71490430425517";
+        $this->view->default_lat = getenv('PREVARISC_CARTO_DEFAULT_LAT') ? : "50.4727273438818";
+        $this->view->couches_cartographiques = $service_carto->getAll();
 
         $cache = Zend_Controller_Front::getInstance()->getParam('bootstrap')->getResource('cache');
         $mygroupe = Zend_Auth::getInstance()->getIdentity()['group']['LIBELLE_GROUPE'];
@@ -146,6 +173,8 @@ class EtablissementController extends Zend_Controller_Action
         $service_etablissement = new Service_Etablissement;
 
         $this->view->etablissement = $service_etablissement->get($this->_request->id);
+
+        $this->view->avis = $service_etablissement->getAvisEtablissement($this->view->etablissement['general']['ID_ETABLISSEMENT'], $this->view->etablissement['general']['ID_DOSSIER_DONNANT_AVIS']);
 
         $descriptifs = $service_etablissement->getDescriptifs($this->_request->id);
 
@@ -183,6 +212,9 @@ class EtablissementController extends Zend_Controller_Action
         $service_etablissement = new Service_Etablissement;
 
         $this->view->etablissement = $service_etablissement->get($this->_request->id);
+
+        $this->view->avis = $service_etablissement->getAvisEtablissement($this->view->etablissement['general']['ID_ETABLISSEMENT'], $this->view->etablissement['general']['ID_DOSSIER_DONNANT_AVIS']);
+
         $this->view->textes_applicables_de_etablissement = $service_etablissement->getAllTextesApplicables($this->_request->id);
     }
 
@@ -194,6 +226,9 @@ class EtablissementController extends Zend_Controller_Action
         $service_textes_applicables = new Service_TextesApplicables;
 
         $this->view->etablissement = $service_etablissement->get($this->_request->id);
+
+        $this->view->avis = $service_etablissement->getAvisEtablissement($this->view->etablissement['general']['ID_ETABLISSEMENT'], $this->view->etablissement['general']['ID_DOSSIER_DONNANT_AVIS']);
+
         $this->view->textes_applicables_de_etablissement = $service_etablissement->getAllTextesApplicables($this->_request->id);
         $this->view->textes_applicables = $service_textes_applicables->getAll();
 
@@ -218,6 +253,9 @@ class EtablissementController extends Zend_Controller_Action
         $service_etablissement = new Service_Etablissement;
 
         $this->view->etablissement = $service_etablissement->get($this->_request->id);
+
+        $this->view->avis = $service_etablissement->getAvisEtablissement($this->view->etablissement['general']['ID_ETABLISSEMENT'], $this->view->etablissement['general']['ID_DOSSIER_DONNANT_AVIS']);
+
         $this->view->pieces_jointes = $service_etablissement->getAllPJ($this->_request->id);
         $this->view->store = Zend_Controller_Front::getInstance()->getParam('bootstrap')->getResource('dataStore');
     }
@@ -234,6 +272,9 @@ class EtablissementController extends Zend_Controller_Action
         $service_etablissement = new Service_Etablissement;
 
         $this->view->etablissement = $service_etablissement->get($this->_request->id);
+
+        $this->view->avis = $service_etablissement->getAvisEtablissement($this->view->etablissement['general']['ID_ETABLISSEMENT'], $this->view->etablissement['general']['ID_DOSSIER_DONNANT_AVIS']);
+
         $this->view->pieces_jointes = $service_etablissement->getAllPJ($this->_request->id);
         $this->view->store = Zend_Controller_Front::getInstance()->getParam('bootstrap')->getResource('dataStore');
 
@@ -292,6 +333,9 @@ class EtablissementController extends Zend_Controller_Action
         $service_etablissement = new Service_Etablissement;
 
         $etablissement = $service_etablissement->get($this->_request->id);
+
+        $this->view->avis = $service_etablissement->getAvisEtablissement($etablissement['general']['ID_ETABLISSEMENT'], $etablissement['general']['ID_DOSSIER_DONNANT_AVIS']);
+
         $contacts_etablissements_parents = array();
 
         // Récupération des contacts des établissements parents
@@ -390,6 +434,8 @@ class EtablissementController extends Zend_Controller_Action
 
         $this->view->etablissement = $service_etablissement->get($this->_request->id);
 
+        $this->view->avis = $service_etablissement->getAvisEtablissement($this->view->etablissement['general']['ID_ETABLISSEMENT'], $this->view->etablissement['general']['ID_DOSSIER_DONNANT_AVIS']);
+
         $dossiers = $service_etablissement->getDossiers($this->_request->id);
 
         $this->view->etudes = $dossiers['etudes'];
@@ -404,6 +450,8 @@ class EtablissementController extends Zend_Controller_Action
         $service_etablissement = new Service_Etablissement;
 
         $this->view->etablissement = $service_etablissement->get($this->_request->id);
+
+        $this->view->avis = $service_etablissement->getAvisEtablissement($this->view->etablissement['general']['ID_ETABLISSEMENT'], $this->view->etablissement['general']['ID_DOSSIER_DONNANT_AVIS']);
 
         $this->view->historique = $service_etablissement->getHistorique($this->_request->id);
     }
